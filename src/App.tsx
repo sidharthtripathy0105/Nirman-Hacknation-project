@@ -14,7 +14,7 @@ import { LocationFinderModal } from './components/LocationFinderModal';
 import { CartDrawer } from './components/CartDrawer';
 import { AuthModal } from './components/AuthModal';
 import { OrderReceiptModal } from './components/OrderReceiptModal';
-import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Info, ArrowLeft } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const {
@@ -31,8 +31,33 @@ const MainContent: React.FC = () => {
     toasts,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [activeTab, setActiveTabState] = useState<string>(() => {
+    const hash = window.location.hash.replace('#', '');
+    return ['dashboard', 'compare', 'orders'].includes(hash) ? hash : 'dashboard';
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const setActiveTab = (tab: string) => {
+    if (tab !== activeTab) {
+      window.history.pushState({ tab }, '', `#${tab}`);
+      setActiveTabState(tab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    if (!window.location.hash) {
+      window.history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
+    }
+
+    const handlePopState = () => {
+      const hash = window.location.hash.replace('#', '');
+      setActiveTabState(['dashboard', 'compare', 'orders'].includes(hash) ? hash : 'dashboard');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const isAuthenticatedAndReady =
     authReady && Boolean(currentUser) && !needsOnboarding && !needsEmailVerification;
@@ -52,6 +77,18 @@ const MainContent: React.FC = () => {
 
           {/* Main Container — Strictly renders only the authenticated user's exclusive role dashboard */}
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            {activeTab !== 'dashboard' && (
+              <div className="mb-4">
+                <button
+                  onClick={() => window.history.back()}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors shadow-xs"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back</span>
+                </button>
+              </div>
+            )}
+
             {activeTab === 'dashboard' && currentUser && (
               <>
                 {currentUser.role === 'customer' && <CustomerDashboard />}
