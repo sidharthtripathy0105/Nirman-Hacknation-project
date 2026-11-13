@@ -1,0 +1,369 @@
+{
+  "entities": {
+    "UserPublicProfile": {
+      "title": "UserPublicProfile",
+      "description": "Public storefront and geographic metadata for an authenticated customer, retailer, or wholesaler.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of account holder",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "role": {
+          "type": "string",
+          "description": "Account tier role in OmniTrade ecosystem",
+          "enum": ["customer", "retailer", "wholesaler"]
+        },
+        "businessName": {
+          "type": "string",
+          "description": "Company or storefront name for retailers and wholesalers",
+          "maxLength": 120
+        },
+        "city": {
+          "type": "string",
+          "description": "City or delivery zone",
+          "maxLength": 80
+        },
+        "lat": {
+          "type": "number",
+          "description": "Latitude coordinate for nearest-seller calculation"
+        },
+        "lng": {
+          "type": "number",
+          "description": "Longitude coordinate for nearest-seller calculation"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp"
+        }
+      },
+      "required": ["uid", "displayName", "role", "city", "lat", "lng", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Private PII and financial credit limits stored in an isolated subcollection.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 150
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "address": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "taxId": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "balanceCredit": {
+          "type": "number",
+          "description": "Net-30 trade credit limit in INR"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "phone", "address", "balanceCredit", "createdAt", "updatedAt"]
+    },
+    "OrderRecord": {
+      "title": "OrderRecord",
+      "description": "Verified B2C or B2B transaction order record.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "orderNumber": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "buyerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "buyerName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "buyerRole": {
+          "type": "string",
+          "enum": ["customer", "retailer", "wholesaler"]
+        },
+        "buyerEmail": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "sellerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sellerName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "sellerRole": {
+          "type": "string",
+          "enum": ["customer", "retailer", "wholesaler"]
+        },
+        "items": {
+          "type": "array",
+          "description": "Bounded list of line items (max 25)"
+        },
+        "subtotal": {
+          "type": "number"
+        },
+        "taxAmount": {
+          "type": "number"
+        },
+        "shippingFee": {
+          "type": "number"
+        },
+        "totalAmount": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "processing", "shipped", "delivered", "cancelled"]
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["card", "upi", "wallet", "net30_escrow", "cod"]
+        },
+        "paymentStatus": {
+          "type": "string",
+          "enum": ["paid", "escrow_held", "invoiced", "pay_on_delivery"]
+        },
+        "shippingAddress": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "trackingNumber": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "estimatedDelivery": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "orderNumber",
+        "date",
+        "buyerId",
+        "buyerName",
+        "buyerRole",
+        "buyerEmail",
+        "sellerId",
+        "sellerName",
+        "sellerRole",
+        "items",
+        "subtotal",
+        "taxAmount",
+        "shippingFee",
+        "totalAmount",
+        "status",
+        "paymentMethod",
+        "paymentStatus",
+        "shippingAddress",
+        "trackingNumber",
+        "estimatedDelivery",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CatalogProduct": {
+      "title": "CatalogProduct",
+      "description": "Live catalog product inventory and pricing document.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sku": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "retailPrice": {
+          "type": "number"
+        },
+        "retailerStock": {
+          "type": "number"
+        },
+        "wholesalerStock": {
+          "type": "number"
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "sku", "name", "category", "retailPrice", "retailerStock", "wholesalerStock", "isActive", "updatedAt"]
+    },
+    "InventoryLogRecord": {
+      "title": "InventoryLogRecord",
+      "description": "Audit log entry for stock telemetry and transactions.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "actorId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "timestamp": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "productId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "productName": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "sku": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "type": {
+          "type": "string",
+          "enum": ["customer_sale", "b2b_wholesale_purchase", "factory_restock", "price_adjustment"]
+        },
+        "quantityDelta": {
+          "type": "number"
+        },
+        "actorRole": {
+          "type": "string",
+          "enum": ["customer", "retailer", "wholesaler"]
+        },
+        "actorName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "retailerStockAfter": {
+          "type": "number"
+        },
+        "wholesalerStockAfter": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "actorId",
+        "timestamp",
+        "productId",
+        "productName",
+        "sku",
+        "type",
+        "quantityDelta",
+        "actorRole",
+        "actorName",
+        "retailerStockAfter",
+        "wholesalerStockAfter",
+        "notes",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPublicProfile" },
+      "description": "Public storefront and geographic coordinates for each registered account"
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Isolated private PII and credit limits strictly accessible by the owning user"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/OrderRecord" },
+      "description": "Verified B2C and B2B orders accessible only to buyer or seller"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/CatalogProduct" },
+      "description": "Live catalog product inventory and pricing overrides"
+    },
+    "/inventoryLogs/{logId}": {
+      "schema": { "$ref": "#/entities/InventoryLogRecord" },
+      "description": "Inventory movement audit trail owned by actorId"
+    }
+  }
+}

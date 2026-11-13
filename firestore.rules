@@ -1,0 +1,282 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Pillar 1: Global Default-Deny Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core Reusable Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidRole(role) {
+      return role in ['customer', 'retailer', 'wholesaler'];
+    }
+
+    // Validation Blueprint: Public User Profile (Zero PII)
+    function isValidUserPublic(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'role', 'city', 'lat', 'lng', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'role', 'businessName', 'city', 'lat', 'lng', 'createdAt', 'updatedAt'])
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 100
+        && data.role is string && isValidRole(data.role)
+        && (!('businessName' in data) || (data.businessName is string && data.businessName.size() <= 120))
+        && data.city is string && data.city.size() >= 1 && data.city.size() <= 80
+        && data.lat is number && data.lat >= -90 && data.lat <= 90
+        && data.lng is number && data.lng >= -180 && data.lng <= 180
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: Private User Info (PII Isolated)
+    function isValidUserPrivate(data) {
+      return data.keys().hasAll(['uid', 'email', 'phone', 'address', 'balanceCredit', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'phone', 'address', 'taxId', 'balanceCredit', 'createdAt', 'updatedAt'])
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 150
+        && data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 40
+        && data.address is string && data.address.size() >= 1 && data.address.size() <= 300
+        && (!('taxId' in data) || (data.taxId is string && data.taxId.size() <= 60))
+        && data.balanceCredit is number && data.balanceCredit >= 0
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: Order Record
+    function isValidOrder(data) {
+      return data.keys().hasAll([
+          'id', 'orderNumber', 'date', 'buyerId', 'buyerName', 'buyerRole', 'buyerEmail',
+          'sellerId', 'sellerName', 'sellerRole', 'items', 'subtotal', 'taxAmount',
+          'shippingFee', 'totalAmount', 'status', 'paymentMethod', 'paymentStatus',
+          'shippingAddress', 'trackingNumber', 'estimatedDelivery', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'orderNumber', 'date', 'buyerId', 'buyerName', 'buyerRole', 'buyerEmail',
+          'sellerId', 'sellerName', 'sellerRole', 'items', 'subtotal', 'taxAmount',
+          'shippingFee', 'totalAmount', 'status', 'paymentMethod', 'paymentStatus',
+          'shippingAddress', 'trackingNumber', 'estimatedDelivery', 'notes', 'createdAt', 'updatedAt'
+        ])
+        && isValidId(data.id)
+        && data.orderNumber is string && data.orderNumber.size() >= 3 && data.orderNumber.size() <= 64
+        && data.date is string && data.date.size() >= 8 && data.date.size() <= 32
+        && isValidId(data.buyerId)
+        && data.buyerName is string && data.buyerName.size() >= 1 && data.buyerName.size() <= 120
+        && isValidRole(data.buyerRole)
+        && data.buyerEmail is string && data.buyerEmail.size() >= 3 && data.buyerEmail.size() <= 150
+        && isValidId(data.sellerId)
+        && data.sellerName is string && data.sellerName.size() >= 1 && data.sellerName.size() <= 120
+        && isValidRole(data.sellerRole)
+        && data.items is list && data.items.size() >= 1 && data.items.size() <= 25
+        && data.items[0] is map
+        && data.subtotal is number && data.subtotal >= 0
+        && data.taxAmount is number && data.taxAmount >= 0
+        && data.shippingFee is number && data.shippingFee >= 0
+        && data.totalAmount is number && data.totalAmount >= 0
+        && data.status in ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
+        && data.paymentMethod in ['card', 'upi', 'wallet', 'net30_escrow', 'cod']
+        && data.paymentStatus in ['paid', 'escrow_held', 'invoiced', 'pay_on_delivery']
+        && !(data.buyerRole == 'customer' && data.paymentMethod == 'net30_escrow')
+        && !(data.buyerRole == 'customer' && data.paymentMethod == 'cod' && data.subtotal >= 5000)
+        && data.shippingAddress is string && data.shippingAddress.size() >= 1 && data.shippingAddress.size() <= 300
+        && data.trackingNumber is string && data.trackingNumber.size() >= 3 && data.trackingNumber.size() <= 64
+        && data.estimatedDelivery is string && data.estimatedDelivery.size() >= 8 && data.estimatedDelivery.size() <= 32
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 300))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: Catalog Product Telemetry
+    function isValidProduct(data) {
+      return data.keys().hasAll([
+          'id', 'sku', 'name', 'category', 'retailPrice', 'retailerStock', 'wholesalerStock', 'isActive', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'sku', 'name', 'category', 'retailPrice', 'retailerStock', 'wholesalerStock', 'isActive', 'updatedAt'
+        ])
+        && isValidId(data.id)
+        && data.sku is string && data.sku.size() >= 2 && data.sku.size() <= 64
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 160
+        && data.category is string && data.category.size() >= 2 && data.category.size() <= 80
+        && data.retailPrice is number && data.retailPrice > 0
+        && data.retailerStock is number && data.retailerStock >= 0
+        && data.wholesalerStock is number && data.wholesalerStock >= 0
+        && data.isActive is bool
+        && data.updatedAt is timestamp;
+    }
+
+    // Validation Blueprint: Inventory Log Entry
+    function isValidInventoryLog(data) {
+      return data.keys().hasAll([
+          'id', 'actorId', 'timestamp', 'productId', 'productName', 'sku',
+          'type', 'quantityDelta', 'actorRole', 'actorName', 'retailerStockAfter',
+          'wholesalerStockAfter', 'notes', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'actorId', 'timestamp', 'productId', 'productName', 'sku',
+          'type', 'quantityDelta', 'actorRole', 'actorName', 'retailerStockAfter',
+          'wholesalerStockAfter', 'notes', 'createdAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.actorId)
+        && data.timestamp is string && data.timestamp.size() >= 8 && data.timestamp.size() <= 40
+        && isValidId(data.productId)
+        && data.productName is string && data.productName.size() >= 1 && data.productName.size() <= 160
+        && data.sku is string && data.sku.size() >= 1 && data.sku.size() <= 64
+        && data.type in ['customer_sale', 'b2b_wholesale_purchase', 'factory_restock', 'price_adjustment']
+        && data.quantityDelta is number
+        && isValidRole(data.actorRole)
+        && data.actorName is string && data.actorName.size() >= 1 && data.actorName.size() <= 120
+        && data.retailerStockAfter is number && data.retailerStockAfter >= 0
+        && data.wholesalerStockAfter is number && data.wholesalerStockAfter >= 0
+        && data.notes is string && data.notes.size() >= 1 && data.notes.size() <= 300
+        && data.createdAt is timestamp;
+    }
+
+    // 1. Public Storefront & Geographic Profiles (Zero PII)
+    match /users/{userId} {
+      allow get: if isSignedIn() && isEmailVerified() && isValidId(userId) && existing().uid == userId;
+      allow list: if isSignedIn() && isEmailVerified() && resource.data.uid == request.auth.uid;
+
+      allow create: if isOwner(userId)
+        && isEmailVerified()
+        && isValidId(userId)
+        && isValidUserPublic(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isOwner(userId)
+        && isEmailVerified()
+        && isValidId(userId)
+        && isValidUserPublic(incoming())
+        && incoming().uid == existing().uid
+        && incoming().role == existing().role
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'businessName', 'city', 'lat', 'lng', 'updatedAt']);
+
+      // 2. Split Collection: Strictly Isolated Private PII
+      match /private/{docId} {
+        allow get: if isOwner(userId) && isEmailVerified() && isValidId(docId)
+          && exists(/databases/$(database)/documents/users/$(userId));
+
+        allow create: if isOwner(userId)
+          && isEmailVerified()
+          && isValidId(docId)
+          && isValidUserPrivate(incoming())
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && existsAfter(/databases/$(database)/documents/users/$(userId));
+
+        allow update: if isOwner(userId)
+          && isEmailVerified()
+          && isValidId(docId)
+          && isValidUserPrivate(incoming())
+          && exists(/databases/$(database)/documents/users/$(userId))
+          && incoming().uid == existing().uid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly(['phone', 'address', 'taxId', 'balanceCredit', 'updatedAt']);
+      }
+    }
+
+    // 3. Verified Trade Orders (Buyer or Seller only)
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && isEmailVerified() && isValidId(orderId)
+        && (existing().buyerId == request.auth.uid || existing().sellerId == request.auth.uid);
+
+      allow list: if isSignedIn() && isEmailVerified()
+        && (resource.data.buyerId == request.auth.uid || resource.data.sellerId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && isEmailVerified()
+        && isValidId(orderId)
+        && isValidOrder(incoming())
+        && incoming().buyerId == request.auth.uid
+        && incoming().status == 'processing'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+
+      allow update: if isSignedIn()
+        && isEmailVerified()
+        && isValidId(orderId)
+        && isValidOrder(incoming())
+        && existing().status != 'delivered'
+        && existing().status != 'cancelled'
+        && (existing().buyerId == request.auth.uid || existing().sellerId == request.auth.uid)
+        && incoming().id == existing().id
+        && incoming().buyerId == existing().buyerId
+        && incoming().sellerId == existing().sellerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+    }
+
+    // 4. Live Catalog Product Stock & Price Telemetry
+    match /products/{productId} {
+      allow get: if isSignedIn() && isEmailVerified() && isValidId(productId) && existing().isActive == true;
+      allow list: if isSignedIn() && isEmailVerified() && resource.data.isActive == true;
+
+      allow create: if isSignedIn()
+        && isEmailVerified()
+        && isValidId(productId)
+        && isValidProduct(incoming())
+        && incoming().updatedAt == request.time
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+
+      allow update: if isSignedIn()
+        && isEmailVerified()
+        && isValidId(productId)
+        && isValidProduct(incoming())
+        && incoming().id == existing().id
+        && incoming().sku == existing().sku
+        && incoming().updatedAt == request.time
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && incoming().diff(existing()).affectedKeys().hasOnly(['retailPrice', 'retailerStock', 'wholesalerStock', 'updatedAt']);
+    }
+
+    // 5. Inventory Movement Audit Logs
+    match /inventoryLogs/{logId} {
+      allow get: if isSignedIn() && isEmailVerified() && isValidId(logId) && existing().actorId == request.auth.uid;
+      allow list: if isSignedIn() && isEmailVerified() && resource.data.actorId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isEmailVerified()
+        && isValidId(logId)
+        && isValidInventoryLog(incoming())
+        && incoming().actorId == request.auth.uid
+        && incoming().createdAt == request.time
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Boot connection check document
+    match /test/{docId} {
+      allow get: if isSignedIn() && docId == 'connection';
+    }
+  }
+}
