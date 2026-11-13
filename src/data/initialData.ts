@@ -1,5 +1,14 @@
 import { Product, User, Order, InventoryLog } from '../types';
 
+import watchImg from '../assets/images/industrial_smart_watch_1794506709578.jpg';
+import chairImg from '../assets/images/ergonomic_office_chair_1794506710260.jpg';
+import headphonesImg from '../assets/images/anc_wireless_headphones_1794506709844.jpg';
+import lampImg from '../assets/images/smart_ambient_lamp_1794506710663.jpg';
+import chipsImg from '../assets/images/potato_chips_pack_1794508571280.jpg';
+import shampooImg from '../assets/images/herbal_shampoo_bottle_1794508583580.jpg';
+import oilImg from '../assets/images/cooking_oil_bottle_1794508595563.jpg';
+import dishwashImg from '../assets/images/dishwash_gel_bottle_1794508610948.jpg';
+
 export const INITIAL_USERS: User[] = [
   {
     id: 'user_cust_1',
@@ -53,7 +62,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'AeroTitan Chrono Smartwatch',
     category: 'Wearables & Electronics',
     description: 'Precision grade 5 titanium chassis, sapphire crystal touch display, ECG sensor, and 14-day enterprise battery endurance. Built for industrial durability and consumer luxury.',
-    image: '/src/assets/images/industrial_smart_watch_1794506709578.jpg',
+    image: watchImg,
     specs: ['Grade 5 Titanium', 'Sapphire Glass', '100m Water Resistant', '14-Day Battery', 'Continuous Biometrics'],
 
     manufacturerId: 'user_mfg_1',
@@ -174,7 +183,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'Kratos Ergonomic Task Chair',
     category: 'Commercial Furniture',
     description: 'BIFMA-certified high-tension elastomeric mesh with cast-aluminum armature, 4D adjustable armrests, and dynamic pneumatic lumbar synchronization.',
-    image: '/src/assets/images/ergonomic_office_chair_1794506710260.jpg',
+    image: chairImg,
     specs: ['Cast Aluminum Frame', 'BIFMA Certified', 'Breathable Mesh', '4D Armrests', '12-Year Mechanism Warranty'],
 
     manufacturerId: 'user_mfg_1',
@@ -278,7 +287,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'Sonus Studio Pro Wireless ANC',
     category: 'Wearables & Electronics',
     description: 'Studio-reference wireless headphones with hybrid active noise cancellation, custom 40mm bio-cellulose drivers, and low-latency lossless audio streaming.',
-    image: '/src/assets/images/anc_wireless_headphones_1794506709844.jpg',
+    image: headphonesImg,
     specs: ['Hybrid ANC (-42dB)', '40mm Bio-Cellulose', '55-Hour Playtime', 'Multipoint Bluetooth 5.4', 'Foldable Alloy Yokes'],
 
     manufacturerId: 'user_mfg_1',
@@ -382,7 +391,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'Lumina Sculpt Smart Ambient Lamp',
     category: 'Home & Lighting',
     description: 'Solid brushed brass sculpture housing diffused dual-zone OLED lighting. Programmable circadian temperature rhythms, Matter smart-home protocol, and capacitive touch dimmer.',
-    image: '/src/assets/images/smart_ambient_lamp_1794506710663.jpg',
+    image: lampImg,
     specs: ['Brushed Solid Brass', 'Matter & Thread Protocol', '2200K - 6500K Tunable White', 'Dual-Zone OLED Diffuser', 'Stepless Capacitive Touch'],
 
     manufacturerId: 'user_mfg_1',
@@ -486,7 +495,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'Flaming Masala Kettle Potato Chips (150g)',
     category: 'Grocery & Snacks',
     description: 'Hand-cooked golden potato chips tossed in an aromatic blend of roasted Indian spices, Kashmiri chilli, and tangy dry mango. Zero trans fat, nitrogen-flushed airtight pouch.',
-    image: '/src/assets/images/potato_chips_pack_1794508571280.jpg',
+    image: chipsImg,
     specs: ['150g Family Pack', 'Hand Cooked Kettle Style', 'Zero Trans-Fat & Cholesterol', 'Nitrogen Flushed 6-Mo Shelf Life', '100% Vegetarian (FSSAI Certified)'],
 
     manufacturerId: 'user_mfg_1',
@@ -607,7 +616,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'Natural Balance Herbal Anti-Dandruff Shampoo (500ml)',
     category: 'Personal Care & Hygiene',
     description: 'Enriched with cold-pressed tea tree oil, fresh aloe vera extract, and bioactive neem. Sulfate-free restorative scalp therapy that controls flaking while nourishing hair roots.',
-    image: '/src/assets/images/herbal_shampoo_bottle_1794508583580.jpg',
+    image: shampooImg,
     specs: ['500ml Dispenser Pump Bottle', 'Sulfate & Paraben Free', 'Organic Tea Tree & Aloe Vera', 'pH 5.5 Balanced Formulation', 'Dermatologically Tested'],
 
     manufacturerId: 'user_mfg_1',
@@ -711,7 +720,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'Pure Harvest Cold-Pressed Sunflower & Mustard Oil (1L)',
     category: 'Grocery & Essentials',
     description: 'Traditional Kachi Ghani unrefined cold-pressed cooking oil blend. Rich in natural Omega-3 fatty acids, high smoke point, and natural aroma with zero chemical refining or solvents.',
-    image: '/src/assets/images/cooking_oil_bottle_1794508595563.jpg',
+    image: oilImg,
     specs: ['1 Litre Food-Grade Glass Bottle', 'Cold-Pressed (Kachi Ghani)', 'Rich in Omega 3 & Vitamin E', 'Zero Chemical Refining', 'FSSAI Certified Agmark Grade 1'],
 
     manufacturerId: 'user_mfg_1',
@@ -815,7 +824,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'Citrus Fresh Lemon Spark Dishwashing Gel (1L)',
     category: 'Household & Cleaning',
     description: 'Concentrated grease-stripping dish gel with real lemon extract and natural active enzymes. One teaspoon cuts through baked-on Indian masala grease from stainless steel, kadhais, and glassware.',
-    image: '/src/assets/images/dishwash_gel_bottle_1794508610948.jpg',
+    image: dishwashImg,
     specs: ['1 Litre Easy-Squeeze Bottle', 'Active Lemon & Lime Degreasers', '99.9% Antibacterial Shield', 'Gentle on Skin (Skin Neutral pH)', 'Leaves Zero White Residue'],
 
     manufacturerId: 'user_mfg_1',
@@ -932,7 +941,7 @@ export const INITIAL_ORDERS: Order[] = [
         productId: 'prod_watch_titanium',
         productName: 'AeroTitan Chrono Smartwatch',
         sku: 'WTC-TI-900',
-        image: '/src/assets/images/industrial_smart_watch_1794506709578.jpg',
+        image: watchImg,
         quantity: 1,
         unitPrice: 13980,
         total: 13980,
@@ -942,7 +951,7 @@ export const INITIAL_ORDERS: Order[] = [
         productId: 'prod_headphones_anc',
         productName: 'Sonus Studio Pro Wireless ANC',
         sku: 'AUD-ANC-700',
-        image: '/src/assets/images/anc_wireless_headphones_1794506709844.jpg',
+        image: headphonesImg,
         quantity: 1,
         unitPrice: 9290,
         total: 9290,
@@ -976,7 +985,7 @@ export const INITIAL_ORDERS: Order[] = [
         productId: 'prod_watch_titanium',
         productName: 'AeroTitan Chrono Smartwatch',
         sku: 'WTC-TI-900',
-        image: '/src/assets/images/industrial_smart_watch_1794506709578.jpg',
+        image: watchImg,
         quantity: 100,
         unitPrice: 7690,
         total: 769000,
@@ -986,7 +995,7 @@ export const INITIAL_ORDERS: Order[] = [
         productId: 'prod_chair_mesh',
         productName: 'Kratos Ergonomic Task Chair',
         sku: 'CHR-ERG-550',
-        image: '/src/assets/images/ergonomic_office_chair_1794506710260.jpg',
+        image: chairImg,
         quantity: 50,
         unitPrice: 11070,
         total: 553500,
@@ -1020,7 +1029,7 @@ export const INITIAL_ORDERS: Order[] = [
         productId: 'prod_chips_masala',
         productName: 'Flaming Masala Kettle Potato Chips (150g)',
         sku: 'GRO-CHP-040',
-        image: '/src/assets/images/potato_chips_pack_1794508571280.jpg',
+        image: chipsImg,
         quantity: 4,
         unitPrice: 50,
         total: 200,
@@ -1030,7 +1039,7 @@ export const INITIAL_ORDERS: Order[] = [
         productId: 'prod_shampoo_herbal',
         productName: 'Natural Balance Herbal Anti-Dandruff Shampoo (500ml)',
         sku: 'FMCG-SHP-210',
-        image: '/src/assets/images/herbal_shampoo_bottle_1794508583580.jpg',
+        image: shampooImg,
         quantity: 2,
         unitPrice: 280,
         total: 560,
@@ -1040,7 +1049,7 @@ export const INITIAL_ORDERS: Order[] = [
         productId: 'prod_dishwash_gel',
         productName: 'Citrus Fresh Lemon Spark Dishwashing Gel (1L)',
         sku: 'FMCG-DSH-600',
-        image: '/src/assets/images/dishwash_gel_bottle_1794508610948.jpg',
+        image: dishwashImg,
         quantity: 1,
         unitPrice: 155,
         total: 155,
